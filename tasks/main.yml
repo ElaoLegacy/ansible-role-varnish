@@ -1,0 +1,39 @@
+---
+
+- name: packages dependencies
+  apt: >
+    name={{ item }}
+    state=present
+    force=true
+  with_items:
+    - apt-transport-https
+  sudo: yes
+
+- name: packages pinning
+  template: >
+    src=pinning.j2
+    dest=/etc/apt/preferences.d/varnish
+  sudo: yes
+
+- name: repositories key
+  apt_key: >
+    url=https://repo.varnish-cache.org/debian/GPG-key.txt
+    state=present
+  sudo: yes
+
+- name: repositories
+  apt_repository: >
+    repo="{{ item }}"
+    state=present
+    update_cache=yes
+  with_items:
+    - deb https://repo.varnish-cache.org/debian/ {{ ansible_distribution_release }} varnish-4.0
+  sudo: yes
+
+- name: packages
+  apt: >
+    name={{ item }}
+    state=latest
+  with_items:
+    - varnish
+  sudo: yes
