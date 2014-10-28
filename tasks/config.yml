@@ -1,0 +1,13 @@
+---
+
+- name: config env
+  template: >
+    src=default_{{ item }}.j2
+    dest=/etc/default/varnish
+  notify:
+    - varnish restart
+  when: elao_env == item
+  with_items:
+    - dev
+    - prod
+  sudo: yes

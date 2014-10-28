@@ -1,0 +1,8 @@
+---
+
+- name: service
+  service: >
+    name=varnish
+    state=started
+    enabled=true
+  sudo: yes
