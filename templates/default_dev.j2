@@ -13,8 +13,8 @@ MEMLOCK=82000
 # the -n switch, to have more instances on a single server.
 # INSTANCE=$(uname -n)
 
-DAEMON_OPTS="-a {{ elao_varnish_address|default("") }}:80 \
+DAEMON_OPTS="-a {{ elao_varnish_address|default("") }}:{{ elao_varnish_port|default(80) }} \
              -T localhost:6082 \
-             -f /etc/varnish/default.vcl \
+             -f {{ elao_varnish_vcl|default("/etc/varnish/default.vcl") }} \
              -S /etc/varnish/secret \
              -s malloc,256m"
