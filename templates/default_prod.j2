@@ -19,7 +19,7 @@ VARNISH_VCL_CONF={{ elao_varnish_vcl|default("/etc/varnish/default.vcl") }}
 # Default address and port to bind to
 # Blank address means all IPv4 and IPv6 interfaces, otherwise specify
 # a host name, an IPv4 dotted quad, or an IPv6 address in brackets.
-VARNISH_LISTEN_ADDRESS={{ elao_varnish_address|default("") }}
+VARNISH_LISTEN_ADDRESS={{ elao_varnish_address|default("127.0.0.1") }}
 VARNISH_LISTEN_PORT={{ elao_varnish_port|default(80) }}
 
 # Telnet admin interface listen address and port
@@ -36,17 +36,21 @@ VARNISH_MAX_THREADS={{ elao_varnish_max_threads|default(1000) }}
 VARNISH_THREAD_TIMEOUT={{ elao_varnish_thread_timeout|default(120) }}
 
 # Cache file location
-#VARNISH_STORAGE_FILE=/var/lib/varnish/$INSTANCE/varnish_storage.bin
+VARNISH_STORAGE_FILE={{ elao_varnish_storage_file }}
 
 # Cache file size: in bytes, optionally using k / M / G / T suffix,
 # or in percentage of available disk space using the % suffix.
-#VARNISH_STORAGE_SIZE=1G
+VARNISH_STORAGE_SIZE={{ elao_varnish_storage_size|default("1G") }}
 
 # File containing administration secret
 VARNISH_SECRET_FILE={{ elao_varnish_secret_file|default("/etc/varnish/secret") }}
 
 # Backend storage specification
-VARNISH_STORAGE="file,${VARNISH_STORAGE_FILE},${VARNISH_STORAGE_SIZE}"
+{% if  elao_varnish_storage_type == "malloc" %}
+VARNISH_STORAGE="{{ elao_varnish_storage_type }},${VARNISH_STORAGE_SIZE}"
+{% else %}
+VARNISH_STORAGE="{{ elao_varnish_storage_type }},${VARNISH_STORAGE_FILE},${VARNISH_STORAGE_SIZE}"
+{% endif %}
 
 # Default TTL used when the backend does not specify one
 VARNISH_TTL=120
