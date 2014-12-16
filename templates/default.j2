@@ -1,0 +1,60 @@
+# Should we start varnishd at boot?  Set to "no" to disable.
+START={{ elao_varnish.start|default("yes") }}
+
+NFILES={{ elao_varnish.nfiles|default("131072") }}
+MEMLOCK={{ elao_varnish.memlock|default("82000") }}
+
+{% if elao_varnish.instance is defined %}
+INSTANCE={{ elao_varnish.instance }}
+{% endif %}
+
+VARNISH_VCL_CONF={{ elao_varnish.vcl|default("/etc/varnish/default.vcl") }}
+
+VARNISH_LISTEN_ADDRESS={{ elao_varnish.address|default("127.0.0.1") }}
+VARNISH_LISTEN_PORT={{ elao_varnish.port|default(80) }}
+
+# Telnet admin interface listen address and port
+{% if elao_varnish.admin_listen_address is defined %}
+VARNISH_ADMIN_LISTEN_ADDRESS={{ elao_varnish.admin_listen_address }}
+VARNISH_ADMIN_LISTEN_PORT={{ elao_varnish.admin_listen_port }}
+{% endif %}
+
+# The minimum number of worker threads to start
+VARNISH_MIN_THREADS={{ elao_varnish.min_threads|default(1) }}
+
+# The Maximum number of worker threads to start
+VARNISH_MAX_THREADS={{ elao_varnish.max_threads|default(1000) }}
+
+# Idle timeout for worker threads
+VARNISH_THREAD_TIMEOUT={{ elao_varnish.thread_timeout|default(120) }}
+
+{% if elao_varnish.storage_type is defined and elao_varnish.storage_type == "file" %}
+# Cache file location
+VARNISH_STORAGE_FILE={{ elao_varnish.storage_file }}
+{% endif %}
+
+# Cache file size: in bytes, optionally using k / M / G / T suffix,
+# or in percentage of available disk space using the % suffix.
+VARNISH_STORAGE_SIZE={{ elao_varnish.storage_size|default("1G") }}
+
+# File containing administration secret
+VARNISH_SECRET_FILE={{ elao_varnish.secret_file|default("/etc/varnish/secret") }}
+
+# Backend storage specification
+{% if elao_varnish.storage_type is defined and elao_varnish.storage_type == "file" %}
+#VARNISH_STORAGE="{{ elao_varnish.storage_type }},${VARNISH_STORAGE_FILE},${VARNISH_STORAGE_SIZE}"
+{% else %}
+VARNISH_STORAGE="{{ elao_varnish.storage_type|default("malloc") }},${VARNISH_STORAGE_SIZE}"
+{% endif %}
+
+# Default TTL used when the backend does not specify one
+VARNISH_TTL={{ elao_varnish.default_ttl|default(120) }}
+
+# DAEMON_OPTS is used by the init script.  If you add or remove options, make
+# sure you update this section, too.
+DAEMON_OPTS="-a ${VARNISH_LISTEN_ADDRESS}:${VARNISH_LISTEN_PORT} \
+             -f ${VARNISH_VCL_CONF} \
+             -T ${VARNISH_ADMIN_LISTEN_ADDRESS}:${VARNISH_ADMIN_LISTEN_PORT} \
+             -t ${VARNISH_TTL} \
+             -S ${VARNISH_SECRET_FILE} \
+             -s ${VARNISH_STORAGE}"
